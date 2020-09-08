@@ -8,7 +8,14 @@
 #include <glm/glm.hpp>
 #include <GL/freeglut.h>
 
+#define NUM_VERTICES  729
+const int num_divisions = 5;
+const int num_vertices = pow(3, num_divisions+1);
+glm::vec2 vertices[NUM_VERTICES];
 
+
+GLuint vbo;
+GLuint vao;
 GLuint theProgram;
 
 const std::string strVertexShader(
@@ -102,16 +109,73 @@ void InitializeProgram()
 	std::for_each(shaderList.begin(), shaderList.end(), glDeleteShader);
 }
 
+void InitializeVertexBuffer()
+{
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+}
+
+void triangle(glm::vec2 a, glm::vec2 b, glm::vec2 c)
+{
+	static int index = 0;
+	vertices[index++] = a;
+	vertices[index++] = b;
+	vertices[index++] = c;
+	
+}
+
+void divide_triangle(glm::vec2 a, glm::vec2 b, glm::vec2 c, int k)
+{
+	if (k > 0)
+	{
+		glm::vec2 ab = glm::vec2((a + b)*0.5f);
+		glm::vec2 ac = glm::vec2((a + c)*0.5f);
+		glm::vec2 bc = glm::vec2((b + c)*0.5f);
+
+		divide_triangle(a, ab, ac, k - 1);
+		divide_triangle(b, ab, bc, k - 1);
+		divide_triangle(c, ac, bc, k - 1);
+	}
+	else
+	{
+		triangle(a, b, c);
+	}
+}
 
 void init()
 {
+	divide_triangle(glm::vec2(0.0f, 1.0f), glm::vec2(-1.0f, -1.0f), glm::vec2(1.0f, -1.0f), num_divisions);
+	InitializeProgram();
+	InitializeVertexBuffer();
+	
 
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
 }
 
 void display()
 {
+
 	glClear(GL_COLOR_BUFFER_BIT);
+	glUseProgram(theProgram);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+	glDrawArrays(GL_TRIANGLES, 0, NUM_VERTICES);
+
+	glDisableVertexAttribArray(0);
+	glUseProgram(0);
+	
+	glFlush();
+
 }
+
+
+
+
 
 int main(int argc, char** argv)
 {
