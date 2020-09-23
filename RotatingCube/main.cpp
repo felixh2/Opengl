@@ -9,12 +9,14 @@
 #include <GL/freeglut.h>
 
 
+
 #define WIDTH 800
 #define HEIGHT 600
 #define NUM_VERTICES 3
 
 GLint windowWidth = 800;
 GLint windowHeight = 600;
+
 
 glm::vec2 vertices[NUM_VERTICES];
 
@@ -32,6 +34,7 @@ const std::string strVertexShader(
 	"   gl_Position = position;\n"
 	"}\n"
 );
+
 
 const std::string strFragmentShader(
 	"#version 330\n"
@@ -109,7 +112,6 @@ void InitializeProgram()
 
 	shaderList.push_back(CreateShader(GL_VERTEX_SHADER, strVertexShader));
 	shaderList.push_back(CreateShader(GL_FRAGMENT_SHADER, strFragmentShader));
-
 	theProgram = CreateProgram(shaderList);
 
 	std::for_each(shaderList.begin(), shaderList.end(), glDeleteShader);
@@ -127,6 +129,7 @@ void idle()
 	glutPostRedisplay();
 }
 
+
 void myMouse(int button, int state, int x, int y)
 {
 
@@ -134,12 +137,6 @@ void myMouse(int button, int state, int x, int y)
 	{
 		exit(0);
 	}
-
-	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
-	{
-
-	}
-
 
 }
 
@@ -153,7 +150,6 @@ void init()
 {
 	InitializeProgram();
 	InitializeVertexBuffer();
-
 
 	glutMouseFunc(myMouse);
 	glutKeyboardFunc(myKeyboard);
@@ -174,7 +170,6 @@ void display()
 
 	glClear(GL_COLOR_BUFFER_BIT);
 	glUseProgram(theProgram);
-
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glEnableVertexAttribArray(0);
