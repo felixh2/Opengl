@@ -9,7 +9,7 @@
 #include <GL/freeglut.h>
 
 
-
+#define AngleToRad(x)  (3.141/180.0)*x
 #define WIDTH 800
 #define HEIGHT 600
 #define NUM_VERTICES 3
@@ -18,9 +18,17 @@ GLint windowWidth = 800;
 GLint windowHeight = 600;
 
 
-glm::vec2 vertices[NUM_VERTICES];
-
-#define AngleToRad(x)  (3.141/180.0)*x
+glm::vec4 vertices[8] =
+{
+	glm::vec4(-1.0f, -1.0f, 1.0f, 1.0f),
+	glm::vec4(-1.0f, 1.0f, 1.0f, 1.0f),
+	glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+	glm::vec4(1.0f, -1.0f, 1.0f, 1.0f),
+	glm::vec4(-1.0f, -1.0f, -1.0f, 1.0f),
+	glm::vec4(-1.0f, 1.0f, -1.0f, 1.0f),
+	glm::vec4(1.0f, 1.0f, -1.0f, 1.0f),
+	glm::vec4(1.0f, -1.0f, -1.0f, 1.0f)
+};
 
 GLuint vbo;
 GLuint vao;
