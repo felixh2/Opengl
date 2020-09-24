@@ -206,6 +206,7 @@ void init()
 
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
+
 }
 
 void reshape(GLsizei w, GLsizei h)
