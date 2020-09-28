@@ -36,14 +36,14 @@ glm::vec4 cube_colors[8] =
 
 glm::vec4 cube_vertices[8] =
 {
-	glm::vec4(-.5f, -.5f, .5f, 1.0f),
-	glm::vec4(-.5f, .5f, .5f, 1.0f),
-	glm::vec4(.5f, .5f, .5f, 1.0f),
-	glm::vec4(.5f, -.5f, .5f, 1.0f),
-	glm::vec4(-.5f, -.5f, -.5f, 1.0f),
-	glm::vec4(-.5f, .5f, -.5f, 1.0f),
-	glm::vec4(.5f, .5f, -.5f, 1.0f),
-	glm::vec4(.5f, -.5f, -.5f, 1.0f)
+	glm::vec4(-1.0f, -1.0f, 1.0f, 1.0f),
+	glm::vec4(-1.0f, 1.0f, 1.0f, 1.0f),
+	glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+	glm::vec4(1.0f, -1.0f, 1.0f, 1.0f),
+	glm::vec4(-1.0f, -1.0f, -1.0f, 1.0f),
+	glm::vec4(-1.0f, 1.0f, -1.0f, 1.0f),
+	glm::vec4(1.0f, 1.0f, -1.0f, 1.0f),
+	glm::vec4(1.0f, -1.0f, -1.0f, 1.0f)
 };
 
 static int index = 0;
@@ -120,10 +120,12 @@ void init()
 
 	// Program specific functions
 	colorCube();
+	glm::mat4 scaleMat = glm::mat4(0.2);
+	scaleMat[3][3] = 1.0f;
 
 	// Other
 	InitializeProgram();
-	shader.Use();						//glUseProgram(theProgram);
+	shader.Use();						
 	
 
 	GLuint vao;
@@ -147,6 +149,10 @@ void init()
 	glEnableVertexAttribArray(color);
 	glVertexAttribPointer(color, 4, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(vertex_data)) );
 	
+	GLuint scaleMatLoc = glGetUniformLocation(shader.Use(), "scale");
+	glUniformMatrix4fv(scaleMatLoc, 1, GL_FALSE, glm::value_ptr(scaleMat) );
+	//glVertexAttribPointer(scaleMatLoc,1,GL_mat4)
+
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(.0, 1.0, 1.0, 1.0);
 

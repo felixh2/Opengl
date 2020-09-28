@@ -2,8 +2,9 @@
 	in vec4 vPosition;
 	in vec4 vColor;
 	out vec4 color;
+	uniform  mat4 scale;
 	void main()
 	{
-	   gl_Position = vPosition;
 		color = vColor;
+		gl_Position = scale*vPosition;
 	}
