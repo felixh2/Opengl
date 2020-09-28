@@ -8,7 +8,8 @@
 #include <glm/glm.hpp>
 #include <GL/freeglut.h>
 #include <glm/gtc/type_ptr.hpp>
-
+#include"Shader.h"
+#include "ResourceManager.h"
 
 #define AngleToRad(x)  (3.141/180.0)*x
 #define WIDTH 800
@@ -19,7 +20,7 @@ GLint windowWidth = 800;
 GLint windowHeight = 600;
 glm::vec4 vertex_data[NUM_VERTICES]; 
 glm::vec4 color_data[NUM_VERTICES];
-
+Shader shader;
 
 glm::vec4 cube_colors[8] =
 {
@@ -66,110 +67,14 @@ void quad(int a, int b, int c, int d)
 	vertex_data[index] = cube_vertices[d];
 	color_data[index] = cube_colors[d];
 	index++;
-
-
-	if (index > 35) index = 0;
 }
 
 
 
-
-GLuint theProgram;
-
-const std::string strVertexShader(
-	"#version 330\n"
-	"in vec4 vPosition;\n"
-	"in vec4 vColor;\n"
-	"out vec4 color;\n"
-	"void main()\n"
-	"{\n"
-	"   gl_Position = vPosition;\n"
-	"	color = vColor;\n"
-	"}\n"
-);
-
-
-const std::string strFragmentShader(
-	"#version 330\n"
-	"out vec4 fragColor;\n"
-	"in vec4 color;\n"
-	"void main()\n"
-	"{\n"
-	"   fragColor = color;\n"
-	"}\n"
-);
-
-GLuint CreateShader(GLenum eShaderType, const std::string &strShaderFile)
-{
-	GLuint shader = glCreateShader(eShaderType);
-	const char *strFileData = strShaderFile.c_str();
-	glShaderSource(shader, 1, &strFileData, NULL);
-
-	glCompileShader(shader);
-
-	GLint status;
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-	if (status == GL_FALSE)
-	{
-		GLint infoLogLength;
-		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
-
-		GLchar *strInfoLog = new GLchar[infoLogLength + 1];
-		glGetShaderInfoLog(shader, infoLogLength, NULL, strInfoLog);
-
-		const char *strShaderType = NULL;
-		switch (eShaderType)
-		{
-		case GL_VERTEX_SHADER: strShaderType = "vertex"; break;
-		case GL_GEOMETRY_SHADER: strShaderType = "geometry"; break;
-		case GL_FRAGMENT_SHADER: strShaderType = "fragment"; break;
-		}
-
-		fprintf(stderr, "Compile failure in %s shader:\n%s\n", strShaderType, strInfoLog);
-		delete[] strInfoLog;
-	}
-
-	return shader;
-}
-
-GLuint CreateProgram(const std::vector<GLuint> &shaderList)
-{
-	GLuint program = glCreateProgram();
-
-	for (size_t iLoop = 0; iLoop < shaderList.size(); iLoop++)
-		glAttachShader(program, shaderList[iLoop]);
-
-	glLinkProgram(program);
-
-	GLint status;
-	glGetProgramiv(program, GL_LINK_STATUS, &status);
-	if (status == GL_FALSE)
-	{
-		GLint infoLogLength;
-		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogLength);
-
-		GLchar *strInfoLog = new GLchar[infoLogLength + 1];
-		glGetProgramInfoLog(program, infoLogLength, NULL, strInfoLog);
-		fprintf(stderr, "Linker failure: %s\n", strInfoLog);
-		delete[] strInfoLog;
-	}
-
-	for (size_t iLoop = 0; iLoop < shaderList.size(); iLoop++)
-		glDetachShader(program, shaderList[iLoop]);
-
-	return program;
-}
 
 void InitializeProgram()
 {
-	std::vector<GLuint> shaderList;
-
-	shaderList.push_back(CreateShader(GL_VERTEX_SHADER, strVertexShader));
-	shaderList.push_back(CreateShader(GL_FRAGMENT_SHADER, strFragmentShader));
-	theProgram = CreateProgram(shaderList);
-
-	std::for_each(shaderList.begin(), shaderList.end(), glDeleteShader);
-
+	shader = ResourceManager::LoadShader("Shaders/vertexShader.vs", "Shaders/fragmentShader.vs", nullptr, "Shader");
 }
 
 // see cube.png
@@ -218,8 +123,9 @@ void init()
 
 	// Other
 	InitializeProgram();
-	glUseProgram(theProgram);
+	shader.Use();						//glUseProgram(theProgram);
 	
+
 	GLuint vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -233,18 +139,18 @@ void init()
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertex_data), vertex_data);
 	glBufferSubData(GL_ARRAY_BUFFER, sizeof(vertex_data), sizeof(color_data), color_data);
 
-	GLuint loc = glGetAttribLocation(theProgram, "vPosition");
+	GLuint loc = glGetAttribLocation(shader.Use(), "vPosition");
 	glEnableVertexAttribArray(loc);
 	glVertexAttribPointer(loc, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
-	GLuint color = glGetAttribLocation(theProgram, "vColor");
+	GLuint color = glGetAttribLocation(shader.Use(), "vColor");
 	glEnableVertexAttribArray(color);
 	glVertexAttribPointer(color, 4, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(vertex_data)) );
 	
 	glEnable(GL_DEPTH_TEST);
-	//glClearColor(1.0, 1.0, 1.0, 1.0);
+	glClearColor(.0, 1.0, 1.0, 1.0);
 
-	glUseProgram(0);
+	//glUseProgram(0);
 }
 
 void reshape(GLsizei w, GLsizei h)
