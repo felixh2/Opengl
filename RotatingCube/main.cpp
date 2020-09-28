@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <GL/freeglut.h>
+#include <glm/gtc/type_ptr.hpp>
 
 
 #define AngleToRad(x)  (3.141/180.0)*x
