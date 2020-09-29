@@ -21,6 +21,7 @@ GLint windowHeight = 600;
 glm::vec4 vertex_data[NUM_VERTICES]; 
 glm::vec4 color_data[NUM_VERTICES];
 Shader shader;
+float thetas[3];
 
 glm::vec4 cube_colors[8] =
 {
@@ -69,14 +70,6 @@ void quad(int a, int b, int c, int d)
 	index++;
 }
 
-
-
-
-void InitializeProgram()
-{
-	shader = ResourceManager::LoadShader("Shaders/vertexShader.vs", "Shaders/fragmentShader.vs", nullptr, "Shader");
-}
-
 // see cube.png
 void colorCube()
 {
@@ -88,8 +81,6 @@ void colorCube()
 	quad(2, 6, 5, 1);
 
 }
-
-
 
 void idle()
 {
@@ -110,6 +101,56 @@ void myKeyboard(unsigned char key, int x, int y)
 {
 	if (key == 'q' || key == 'Q')
 		exit(0);
+
+	// rotate about z:
+	if (key== 'z')
+		thetas[2] = thetas[2] + 10.f;
+	if (key == 'x')
+		thetas[2] = thetas[2] - 10.f;
+
+	// rotate around x
+	if (key == 'w')
+		thetas[0] = thetas[0] + 10.f;
+	if (key == 's')
+		thetas[0] = thetas[0] - 10.f;
+
+	// rotate around y
+	if (key == 'd')
+		thetas[1] = thetas[1] + 10.f;
+	if (key == 'a')
+		thetas[1] = thetas[1] - 10.f;
+
+	glutPostRedisplay();
+}
+
+void InitializeProgram()
+{
+	shader = ResourceManager::LoadShader("Shaders/vertexShader.vs", "Shaders/fragmentShader.vs", nullptr, "Shader");
+}
+
+
+glm::mat4 rotateX(float theta)
+{
+	glm::mat4 rotationMatrix = glm::mat4(1.0);
+	rotationMatrix[1] = glm::vec4(0.0, cos(glm::radians(theta)), sin(glm::radians(theta)), 0.0);
+	rotationMatrix[2] = glm::vec4(0.0, -sin(glm::radians(theta)), cos(glm::radians(theta)), 0.0);
+	return rotationMatrix;
+}
+
+glm::mat4 rotateZ(float theta)
+{
+	glm::mat4 rotationMatrix = glm::mat4(1.0);
+	rotationMatrix[0] = glm::vec4(cos(glm::radians(theta)), sin(glm::radians(theta)), 0.0, 0.0);
+	rotationMatrix[1] = glm::vec4(-sin(glm::radians(theta)), cos(glm::radians(theta)), 0.0, 0.0);
+	return rotationMatrix;
+}
+
+glm::mat4 rotateY(float theta)
+{
+	glm::mat4 rotationMatrix = glm::mat4(1.0);
+	rotationMatrix[0] = glm::vec4(cos(glm::radians(theta)),0.0, -sin(glm::radians(theta)), 0.0);
+	rotationMatrix[2] = glm::vec4(sin(glm::radians(theta)), 0.0, cos(glm::radians(theta)), 0.0);
+	return rotationMatrix;
 }
 
 void init()
@@ -122,6 +163,9 @@ void init()
 	colorCube();
 	glm::mat4 scaleMat = glm::mat4(0.2);
 	scaleMat[3][3] = 1.0f;
+
+
+
 
 	// Other
 	InitializeProgram();
@@ -169,6 +213,16 @@ void reshape(GLsizei w, GLsizei h)
 void display()
 {
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
+	GLuint rotXMatLoc = glGetUniformLocation(shader.Use(), "rotationX");
+	glUniformMatrix4fv(rotXMatLoc, 1, GL_FALSE, glm::value_ptr(rotateX(thetas[0])));
+
+	GLuint rotYMatLoc = glGetUniformLocation(shader.Use(), "rotationY");
+	glUniformMatrix4fv(rotYMatLoc, 1, GL_FALSE, glm::value_ptr(rotateY(thetas[1])));
+
+	GLuint rotZMatLoc = glGetUniformLocation(shader.Use(), "rotationZ");
+	glUniformMatrix4fv(rotZMatLoc, 1, GL_FALSE, glm::value_ptr(rotateZ(thetas[2])));
+
 	glDrawArrays(GL_TRIANGLES, 0, NUM_VERTICES);
 	glutSwapBuffers();
 }

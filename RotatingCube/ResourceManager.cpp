@@ -4,7 +4,7 @@
 #include <sstream>
 #include <fstream>
 
-std::map<std::string, Shader>       ResourceManager::Shaders;
+std::map<std::string, Shader> ResourceManager::Shaders;
 
 ResourceManager::ResourceManager()
 {
